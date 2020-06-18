@@ -57,29 +57,63 @@ def Gaus_elimination_to_forward(matriz,vector):
             matriz[i]=matriz[i] - matriz[i][j]*matriz[j]
     return matriz,vector
 
+def pivoteo_parcial(matriz,vector):
+    n=matriz.shape[0]
+    matriz=matriz.astype(float)
+    vector=vector.astype(float)
+    for j in range(n):
+        if matriz[j][j]==0:
+            i=np.argmax(np.abs(matriz[:,j])) #Nos da el indice donde el elemnto de la columna es maximo
+            matriz[[i,j]]=matriz[[j,i]]
+            vector[j],vector[i]=vector[i],vector[j]
+    return matriz,vector
+
+def descompo_LU(matriz):
+    #Este algoritmo esta fuertemente basado en la descompisicon gausina para backward
+    n=matriz.shape[0]
+    matriz=matriz.astype(float)
+    L=np.zeros([n,n])
+    for j in range(n):
+        L[j][j] = 1.0   #https://youtu.be/WMrwMKPhrMc (video donde se explica mejor la descomposicion LU)
+        for i in range(j+1,n):
+            L[i][j] = matriz[i][j]/matriz[j][j] #lA MATRIZ RESTANTE "matriz" alfinal es la matriz U buscada.
+            matriz[i] = matriz[i] - L[i][j]*matriz[j]
+    return L,matriz
+
 #Matrices de prueba
+
 matriz1=np.array([[2,0,0],[1,4,0],[4,3,3]])
 vector1=np.array([4,2,5])
 
 matriz2=np.array([[1,2,1],[0,-4,1],[0,0,-2]])
 vector2=np.array([5,2,4])
 
-matriz3=np.array([[5,2,1,4,5],[5,-4,1,4,6],[3,2,-2,6,7],[2,3,4,5,7],[2,45,6,7,8]])
-vector3=np.array([3,2,7,6,7])
-
 matriz4=np.array([[2,-1,4,1,-1],[-1,3,-2,-1,2],[5,1,3,-4,1],[3,-2,-2,-2,3],[-4,-1,-5,3,-4]])
 vector4=np.array([7,1,33,24,-49])
 
+matriz3=np.array([[1,2,-6,4,5],[5,-4,1,4,6],[5,2,0,6,7],[2,3,4,5,7],[2,45,5,7,8]])
+vector3=np.array([3,2,7,6,7])
+
+print("\nProbando forward\n")
 print(forward(matriz1,vector1))
 print("")
+print("\nProbando backward\n")
 print(backward(matriz2,vector2))
+print("\nPprobando eliminacion gausiana\n")
 print(matriz4)
 print(vector4)
+
 print(Gaus_elimination_to_backward(matriz4,vector4))
 print(Gaus_elimination_to_forward(matriz4,vector4)[0])
-
+print("\nSOlucion con Gaus_elimination_to_backward y Gaus_elimination_to_forward\n")
 print(backward(Gaus_elimination_to_backward(matriz4,vector4)[0],Gaus_elimination_to_backward(matriz4,vector4)[1]))
 
 print(forward(Gaus_elimination_to_forward(matriz4,vector4)[0],Gaus_elimination_to_forward(matriz4,vector4)[1]))
-
+print("\nProbando pivoteo\n")
+print(matriz3,vector3)
+print(pivoteo_parcial(matriz3,vector3))
+print("\nDescomposicion LU\n")
+print("MAtriz4\n",matriz4)
+print("L\n",descompo_LU(matriz4)[0])
+print("U\n",descompo_LU(matriz4)[1])
 
