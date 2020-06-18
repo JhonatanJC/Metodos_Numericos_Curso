@@ -50,7 +50,7 @@ def metodo_biseccion(x_l,x_u,tolerancia,iteraciones,funcion):
     while i<=iteraciones and tolerancia<error_final:
         x_r=(x_l+x_u)/2.0   #regla de iteracion
         todos_x_r.append(x_r)
-        errores.append(abs(todos_x_r[i+1]-todos_x_r[i])) #Se agregan las diferencias de raices consecutivas osea los errores
+        errores.append(abs(todos_x_r[i+1]-todos_x_r[i])/todos_x_r[i+1]) #Se agregan las diferencias de raices consecutivas osea los errores
         if funcion(x_l)*funcion(x_r)<0:
             x_u=x_r
         elif funcion(x_l)*funcion(x_r)>0:
@@ -70,7 +70,7 @@ def metodo_falsa_posicion(x_l,x_u,tolerancia,iteraciones,funcion):
     while i<=iteraciones and tolerancia<error_final:
         x_r=x_u - (funcion(x_u)*(x_l-x_u))/(funcion(x_l)-funcion(x_u))
         todos_x_r.append(x_r)
-        errores.append(abs(todos_x_r[i+1]-todos_x_r[i]))
+        errores.append(abs(todos_x_r[i+1]-todos_x_r[i])/todos_x_r[i+1])
         if funcion(x_l)*funcion(x_r)<0:
             x_u=x_r
         elif funcion(x_l)*funcion(x_r)>0:
@@ -89,7 +89,7 @@ def metodo_punto_fijo(x_0,tolerancia,iteraciones,funcion):
     while i<=iteraciones and tolerancia<error_final:
         x_1=x_0 - funcion(x_0) 
         todos_x_r.append(x_1)
-        errores.append(abs(todos_x_r[i+1]-todos_x_r[i]))
+        errores.append(abs(todos_x_r[i+1]-todos_x_r[i])/todos_x_r[i+1])
         x_0=x_1
         i=i+1
         error_final=errores[-1]
@@ -116,7 +116,7 @@ def metodo_newton_rhapson_modificado(x_0,tolerancia,iteraciones,funcion):
         #x_1=x_0 - funcion(x_0)/primera_derivada(funcion,x_0) # NERTHON RHAPSON NORMAL
         x_1 = x_0 - (funcion(x_0)*primera_derivada(funcion,x_0))/(primera_derivada(funcion,x_0)**2 - funcion(x_0)*segunda_derivada(funcion,x_0)) #MODIFICADO
         todos_x_r.append(x_1)
-        errores.append(abs(todos_x_r[i+1]-todos_x_r[i]))
+        errores.append(abs(todos_x_r[i+1]-todos_x_r[i])/todos_x_r[i+1])
         x_0=x_1
         i=i+1
         error_final=errores[-1]
@@ -133,7 +133,7 @@ def metodo_secante_modificado(x_0,tolerancia,iteraciones,funcion):
         d=funcion(x_01)/primera_derivada(funcion,x_01)
         x_1=x_0 - (u*(x_01-x_0))/(d-u)    
         todos_x_r.append(x_1)
-        errores.append(abs(todos_x_r[i+1]-todos_x_r[i]))
+        errores.append(abs(todos_x_r[i+1]-todos_x_r[i])/todos_x_r[i+1])
         x_01=x_0
         x_0=x_1
         i=i+1
