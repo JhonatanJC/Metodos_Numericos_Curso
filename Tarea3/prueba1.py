@@ -80,6 +80,10 @@ def descompo_LU(matriz):
             matriz[i] = matriz[i] - L[i][j]*matriz[j]
     return L,matriz
 
+def GAUSJORDAN(matriz,vector):
+    a=Gaus_elimination_to_forward(matriz,vector)
+    b=Gaus_elimination_to_backward(a[0],a[1])
+    return b
 #Matrices de prueba
 
 matriz1=np.array([[2,0,0],[1,4,0],[4,3,3]])
@@ -116,4 +120,6 @@ print("\nDescomposicion LU\n")
 print("MAtriz4\n",matriz4)
 print("L\n",descompo_LU(matriz4)[0])
 print("U\n",descompo_LU(matriz4)[1])
-
+print("\n%%%%%%%%%%%\n")
+print("GAUSS JORDAN\n")
+print(GAUSJORDAN(matriz4,vector4))
