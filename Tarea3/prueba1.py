@@ -123,3 +123,11 @@ print("U\n",descompo_LU(matriz4)[1])
 print("\n%%%%%%%%%%%\n")
 print("GAUSS JORDAN\n")
 print(GAUSJORDAN(matriz4,vector4))
+#https://www.waxworksmath.com/Authors/G_M/Kiusalaas/NMIEW_Python/Kiusalaas.html
+def cholesky(x):
+    if np.all(np.linalg.eigvals(x) > 0) and np.all(x.T==x):
+        return 
+    else:
+        return "No se puede "
+    
+print(cholesky(matriz4))
