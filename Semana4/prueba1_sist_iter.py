@@ -90,31 +90,7 @@ def is_diagonally_dominant(x):
     abs_x = np.abs(x)
     return np.all( np.diag(abs_x) >= (np.sum(abs_x, axis=1) - np.diag(abs_x))  )
 
-"""
-def Jacobi_method(matriz,vector,num_iter):
-    matriz,vector= pivoteo_parcial(matriz,vector) #se hace el pivoteo parcial si es necesario.
-    #D,L,U=matrices_DLU(matriz)
-    n=matriz.shape[1]
-    solucion=np.zeros(n)
-    k=0
-    while k<num_iter:
-        for i in range(n):
-            suma=0
-            for j in range(n):
-                if j != i:
-                    suma=suma+matriz[i][j]*solucion[j]
-            solucion[i]=(vector[i] - suma)/matriz[i][i]
-        k=k+1
-    if is_diagonally_dominant(matriz):
-        print("Solucion parecido a GAuss")
-        return solucion
-    else:
-        print("ALERTA!! La matriz A no es diagonalmente dominante por filas, por lo tanto la solucion presentada es probable que sea incorrecta, intentar con otro algoritmo:")
-        print("\nSolucion:")
-        return solucion
-"""
-
-def Jacobi_method2(matriz,vector,num_iter_max,tolerancia):
+def Jacobi_method(matriz,vector,num_iter_max,tolerancia):
     matriz,vector= pivoteo_parcial(matriz,vector) #se hace el pivoteo parcial si es necesario.
     #D,L,U=matrices_DLU(matriz)
     n=matriz.shape[1]
@@ -122,7 +98,6 @@ def Jacobi_method2(matriz,vector,num_iter_max,tolerancia):
     errores=[10]#contiene el valor inicial del error
     k=0
     while k<num_iter_max and errores[k]>tolerancia:
-        
         solucion=[]
         for i in range(n):
             suma=0
@@ -136,7 +111,6 @@ def Jacobi_method2(matriz,vector,num_iter_max,tolerancia):
         errores.append(np.linalg.norm(solucion-soluciones[k])/np.linalg.norm(solucion))
         k=k+1
     if is_diagonally_dominant(matriz):
-        print("Solucion por JAcobi:")
         return soluciones, errores,k
     else:
         print("ALERTA!! La matriz A no es diagonalmente dominante por filas, por lo tanto la solucion presentada es probable que sea incorrecta, intentar con otro algoritmo:")
@@ -170,7 +144,6 @@ def Gauss_Seidel_method(matriz,vector,num_iter_max,tolerancia):
         errores.append(np.linalg.norm(solucion1-soluciones[k])/np.linalg.norm(solucion1))
         k=k+1
     if is_diagonally_dominant(matriz):
-        print("Solucion por GAuss Seidel:")
         return soluciones, errores,k
     else:
         print("ALERTA!! La matriz A no es diagonalmente dominante por filas, por lo tanto la solucion presentada es probable que sea incorrecta, intentar con otro algoritmo:")
@@ -186,8 +159,7 @@ def SOR(matriz,vector,num_iter_max,tolerancia,w):
     errores=[10]
     k=0
     while k<num_iter_max and errores[k]>tolerancia:
-        solucion1=[]
-        
+        solucion1=[] 
         for i in range(0,n):
             suma1=0
             suma2=0
@@ -212,6 +184,117 @@ def SOR(matriz,vector,num_iter_max,tolerancia,w):
         print("\nSolucion:")
         return soluciones, errores,k
 
+ ###############################################################################
+
+def matriz_positiva(matriz):
+    if np.all(np.linalg.eigvals(matriz) > 0) and np.all(matriz.T==matriz):
+        return True 
+    else:
+        return False
+
+def maximo_descenso(matriz,vector,num_iter_max,tolerancia):
+    n = matriz.shape[0]
+    k= 0
+    soluciones=[np.zeros(n)]
+    errores=[10]
+    while k<num_iter_max and errores[k] > tolerancia:
+        r = vector - matriz@soluciones[k]
+        alpha = (r.T@r)/(r.T@(matriz@r))
+        solucion=soluciones[k] + alpha*r
+        
+        soluciones.append(solucion)
+        errores.append(np.linalg.norm(solucion-soluciones[k])/np.linalg.norm(solucion))
+        
+        k = k + 1
+    if matriz_positiva(matriz):
+        return soluciones,errores, k
+    else:
+        print("La matriz no es positiva y/o simetrica el resultados no puede ser el correcto ")
+        return soluciones,errores, k
+
+def grad_desc_conjugado(matriz,vector,num_iter_max,tolerancia):
+    n = matriz.shape[0]
+    k= 0
+    soluciones=[np.zeros(n)]
+    r=[matriz@soluciones[0] - vector]
+    p_s=-r[0]
+    errores=[10]
+    
+    while k<num_iter_max and errores[k] > tolerancia:
+        alpha=-(r[k].T@p_s)/(p_s.T@(matriz@p_s)) 
+        solucion=soluciones[k] + alpha*p_s
+        r_s=matriz@solucion - vector
+        r.append(r_s)
+        beta=(r_s.T@(matriz@p_s))/(p_s.T@(matriz@p_s))
+        p_s=-r_s + beta*p_s
+        soluciones.append(solucion)
+        errores.append(np.linalg.norm(solucion-soluciones[k])/np.linalg.norm(solucion))
+        k= k + 1
+     
+    if matriz_positiva(matriz):
+        return soluciones,errores, k
+    else:
+        print("La matriz no es positiva y/o simetrica el resultados no puede ser el correcto ")
+        return soluciones,errores, k
+
+
+def grad_desc_conjugado2(matriz, vector,error):
+    n = matriz.shape[0]
+    k=0
+    soluciones=[np.zeros(n)]
+    r =vector - matriz@soluciones[k] 
+    p = r
+    errores=[10]
+    while np.linalg.norm(r) > error:
+        alpha = (p.T @ r)/(p.T @ (matriz@p))
+        solucion = soluciones[k] + alpha*p
+        r = vector - (matriz @ solucion)
+        beta = -(r @ (matriz@p))/(p @ (matriz@p))
+        p = r + beta*p
+        soluciones.append(solucion)
+        errores.append(np.linalg.norm(solucion-soluciones[k])/np.linalg.norm(solucion))
+        k = k + 1
+        
+    if matriz_positiva(matriz):
+        return soluciones,errores, k
+    else:
+        print("La matriz no es positiva y/o simetrica el resultados no puede ser el correcto ")
+        return soluciones,errores, k
+
+
+def grad_desc_conjugado_mejorado(matriz,vector,num_iter_max,tolerancia):
+    n = matriz.shape[0]
+    k= 0
+    soluciones=[np.zeros(n)]
+    r=[matriz@soluciones[0] - vector]
+    p_s=-r[0]
+    errores=[10]
+    
+    while k<num_iter_max and errores[k] > tolerancia:
+        w=matriz@p_s
+        alpha=(r[k].T@r[k])/(p_s.T@w) 
+        solucion=soluciones[k] + alpha*p_s
+        r_s=r[k] + alpha*w
+        r.append(r_s)
+        beta=(r_s.T@r_s)/(r[k].T@r[k])
+        p_s=-r_s+ beta*p_s
+        soluciones.append(solucion)
+        errores.append(np.linalg.norm(solucion-soluciones[k])/np.linalg.norm(solucion))
+        k= k + 1
+     
+    if matriz_positiva(matriz):
+        return soluciones,errores, k
+    else:
+        print("La matriz no es positiva y/o simetrica el resultados no puede ser el correcto ")
+        return soluciones,errores, k
+
+
+#Para saber si una matriz esta mal condicionada entonces:
+#k>>1 ----> MAL CONDICIONADA 
+#k=1 -----> BIEN CONDICIONADA
+#k=|A|*|A^{-1}|
+#k=np.linalg.cond(matriz)
+
 matriz_prueba1=np.array([[10,1,3,-4,1],[2,-15,4,1,-1],[-1,3,-15,-1,2],[3,-2,-2,-150,3],[-4,-1,-5,3,-14]])
 vector_prueba1=np.array([33,7,1,24,-49])
 
@@ -221,8 +304,8 @@ vector_prueba2=np.array([7.85,-19.3,71.4])
 matriz_prueba3=np.array([[4,1,2,-1],[3,6,-1,2],[2,-1,5,-3],[4,1,-3,-8]])
 vector_prueba3=np.array([2,-1,3,2])
 
-matriz_prueba4=np.array([[1,5,1],[2,1,6],[8,3,2]])
-vector_prueba4=np.array([7,9,13])
+matriz_prueba4=np.array([[10,1,2,2],[1,10,2,3],[2,2,20,4],[2,3,4,15]])
+vector_prueba4=np.array([7,9,13,4])
 
 matriz_prueba5=np.array([[10,3,1,4,1,0],[3,-10,1,-1,2,-1],[1,3,10,-1,-2,1],[-3,-1,1,10,2,-2],[1,1,1,-2,-10,3],[2,-1,0,3,1,10]])
 vector_prueba5=np.array([1,1,1,1,1,1])
@@ -230,42 +313,41 @@ vector_prueba5=np.array([1,1,1,1,1,1])
 matriz_prueba6=np.array([[1,1,1],[1,-1,2],[1,-1,-3]])
 vector_prueba6=np.array([6,5,-10])
 
+matriz_prueba7=np.array([ [12.0, 3, -5], [1,5,3], [3,7,13]])
+vector_prueba7=np.array([1.0, 28, 76])
 
-#print(Gauss_Seidel_method(matriz_prueba1,vector_prueba1,5))
+print("Matriz")
+print(matriz_prueba4)
+print("\nVector")
+print(vector_prueba4)
 
-#print(Jacobi_method(matriz_prueba2,vector_prueba2,5))
-print("")
-
-print(Jacobi_method2(matriz_prueba5,vector_prueba5,100,1e-3))
-print("")
-
-print(Gauss_Seidel_method(matriz_prueba5,vector_prueba5,100,1e-3))
-print("")
-print(SOR(matriz_prueba5,vector_prueba5,100,1e-3,3.0/4.0))
-print("")
-print(descompo_LU(matriz_prueba2,vector_prueba2))
-print("")
-"""
-print(Jacobi_method(matriz_prueba2,vector_prueba2,200))
-print(descompo_LU(matriz_prueba2,vector_prueba2))
+print("\nSolucion por el metodos de Jacobi_method ")
+print(Jacobi_method(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
 print("")
 
-print(Jacobi_method(matriz_prueba3,vector_prueba3,200))
-print(descompo_LU(matriz_prueba3,vector_prueba3))
+print("Solucion por el metodos de Gauss_Seidel_method ")
+print(Gauss_Seidel_method(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
 print("")
 
-print(Jacobi_method(matriz_prueba4,vector_prueba4,200))
+print("Solucion por el metodos de maximo_descenso")
+print(maximo_descenso(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
+print("")
+
+print("Solucion por el metodos de grad_desc_conjugado")
+print(grad_desc_conjugado(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
+print("")
+
+print("Solucion por el metodos de grad_desc_conjugado2")
+print(grad_desc_conjugado2(matriz_prueba4,vector_prueba4,1e-3)[0][-1])
+print("")
+
+print("Solucion por el metodos de grad_desc_conjugado_mejorado ")
+print(grad_desc_conjugado_mejorado(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
+print("")
+
+print("METODO DIRECTO\n")
+print("Solucion por el metodos de descompo_LU ")
 print(descompo_LU(matriz_prueba4,vector_prueba4))
 print("")
-
-print(Jacobi_method(matriz_prueba5,vector_prueba5,200))
-print(descompo_LU(matriz_prueba5,vector_prueba5))
-print("")
-
-print(Jacobi_method(matriz_prueba6,vector_prueba6,200))
-print(descompo_LU(matriz_prueba6,vector_prueba6))
-"""
-
-
 
 
