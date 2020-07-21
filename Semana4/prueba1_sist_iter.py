@@ -281,7 +281,7 @@ def grad_desc_conjugado_mejorado(matriz,vector,num_iter_max,tolerancia):
         soluciones.append(solucion)
         errores.append(np.linalg.norm(solucion-soluciones[k])/np.linalg.norm(solucion))
         k= k + 1
-     
+        
     if matriz_positiva(matriz):
         return soluciones,errores, k
     else:
@@ -304,8 +304,8 @@ vector_prueba2=np.array([7.85,-19.3,71.4])
 matriz_prueba3=np.array([[4,1,2,-1],[3,6,-1,2],[2,-1,5,-3],[4,1,-3,-8]])
 vector_prueba3=np.array([2,-1,3,2])
 
-matriz_prueba4=np.array([[10,1,2,2],[1,10,2,3],[2,2,20,4],[2,3,4,15]])
-vector_prueba4=np.array([7,9,13,4])
+matriz_prueba4=np.array([[4., -1., -1., -1.], [-1., 3., 0., -1.], [-1., 0., 3., -1.], [-1., -1., -1., 4.]])
+vector_prueba4=np.array([5., 0., 5., 0.])
 
 matriz_prueba5=np.array([[10,3,1,4,1,0],[3,-10,1,-1,2,-1],[1,3,10,-1,-2,1],[-3,-1,1,10,2,-2],[1,1,1,-2,-10,3],[2,-1,0,3,1,10]])
 vector_prueba5=np.array([1,1,1,1,1,1])
@@ -316,27 +316,39 @@ vector_prueba6=np.array([6,5,-10])
 matriz_prueba7=np.array([ [12.0, 3, -5], [1,5,3], [3,7,13]])
 vector_prueba7=np.array([1.0, 28, 76])
 
+#matriz_prueba4=np.array([[4,1],[1,3]])
+#vector_prueba4=np.array([1,2])
+
+matriz_prueba9=np.array([[4,3,2,1],[3,3,2,1],[2,2,2,1],[1,1,1,1]])
+vector_prueba9=np.array([7,9,13,4])
+
+
 print("Matriz")
 print(matriz_prueba4)
 print("\nVector")
 print(vector_prueba4)
 
 print("\nSolucion por el metodos de Jacobi_method ")
-print(Jacobi_method(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
+Jacobi_method1=Jacobi_method(matriz_prueba4,vector_prueba4,100,1e-6)
+print(Jacobi_method1[0][-1])
 print("")
 
 print("Solucion por el metodos de Gauss_Seidel_method ")
-print(Gauss_Seidel_method(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
+Gauss_Seidel_method1=Gauss_Seidel_method(matriz_prueba4,vector_prueba4,100,1e-6)
+print(Gauss_Seidel_method1[0][-1])
 print("")
 
 print("Solucion por el metodos de maximo_descenso")
-print(maximo_descenso(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
+maximo_descenso1=maximo_descenso(matriz_prueba4,vector_prueba4,100,1e-3)
+print(maximo_descenso1[0][-1])
 print("")
 
 print("Solucion por el metodos de grad_desc_conjugado")
-print(grad_desc_conjugado(matriz_prueba4,vector_prueba4,100,1e-3)[0][-1])
+grad_desc_conjugado1=grad_desc_conjugado_mejorado(matriz_prueba4,vector_prueba4,100,1e-3)
+print(grad_desc_conjugado1[0])#[-1])
 print("")
 
+"""
 print("Solucion por el metodos de grad_desc_conjugado2")
 print(grad_desc_conjugado2(matriz_prueba4,vector_prueba4,1e-3)[0][-1])
 print("")
@@ -349,5 +361,16 @@ print("METODO DIRECTO\n")
 print("Solucion por el metodos de descompo_LU ")
 print(descompo_LU(matriz_prueba4,vector_prueba4))
 print("")
+"""
 
-
+plt.figure()
+plt.plot(np.arange(Jacobi_method1[2]+1),np.log(Jacobi_method1[1]),label="Jacobi_method",marker="o",color="blue")#,s=10)
+plt.plot(np.arange(Gauss_Seidel_method1[2]+1),np.log(Gauss_Seidel_method1[1]),label="Gauss_Seidel_method",marker="o",color="green")#,s=10)
+plt.plot(np.arange(maximo_descenso1[2]+1),np.log(maximo_descenso1[1]),label="maximo_descenso",marker="o",color="black")#,s=10)
+plt.plot(np.arange(grad_desc_conjugado1[2]+1),np.log(grad_desc_conjugado1[1]),label="grad_desc_conjugado",marker="o",color="red")#,s=10)
+plt.legend(loc="best")
+plt.xlabel("Iteracion")
+plt.ylabel("Errores")
+plt.title("EVOLUCION DE ERRORES DE CADA METODO NUMERICO EN ESCALA LOGARITMICA")
+plt.grid()
+plt.show()
